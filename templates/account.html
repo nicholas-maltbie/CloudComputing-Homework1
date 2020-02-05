@@ -3,6 +3,8 @@
 
 You are now logged in
 
+<h1>Account Details</h1>
+
 <ul class='wrapper'>
     <li class="form-row">
         <label for="username">username:</label>
@@ -20,6 +22,36 @@ You are now logged in
         <label for="lname">last name:</label>
         <input type = "text" name = "lname" {% if lastName %}value="{{ lastName }}"{% endif %} readonly/>
     </li>
+</ul>
+<h1>Upload File</h1>
+<ul class='wrapper'>
+    <form method=POST enctype=multipart/form-data action="upload">
+        <li class="form-row">
+            <label for="myfile">User File:</label>
+            <input type = "file" name = "myfile" >
+        </li>
+        <li class="form-row">
+            <label>Upload new file (replaces current):</label>
+            <input type = "submit" value="upload"/>
+        </li>
+    </form>
+</ul>
+<h1>Current File Details</h1>
+<ul class='wrapper'>
+    <li class="form-row">
+        <label for="filewords">Current File Name:</label>
+        <input type = "text" name = "filewords" {% if myfile %}value="{{ myfile }}"{% endif %} readonly/>
+    </li>
+    <li class="form-row">
+        <label for="filewords">Current File Words:</label>
+        <input type = "text" name = "filewords" {% if fileWords %}value="{{ fileWords }}"{% endif %} readonly/>
+    </li>
+    <form method=GET enctype=multipart/form-data action="download">
+        <li class="form-row">
+            <label>Download file: {% if myfile %}{{ myfile }}{% endif %}</label>
+            <input type = "submit" value="download"/>
+        </li>
+    </form>
     <li class="form-row">
         <a href="{{ url_for('logout') }}" class="button">logout</a>
     </li>

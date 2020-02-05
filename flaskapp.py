@@ -1,17 +1,73 @@
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, render_template, request, redirect, session, url_for, Response
 from flask_mysqldb import MySQL
-from config import Config
 
+import os
 import re
+import boto3
 import password_utils
 import user_manager
 
 app = Flask(__name__)
 
 # Load configuration from config file
-app.config.from_object(Config)
+app.config.from_object('config.Default')
+
+
+def get_s3_client():
+    return boto3.client('s3',
+        region_name = app.config["S3_REGION"],
+        aws_access_key_id = app.config["S3_KEY"],
+        aws_secret_access_key = app.config["S3_SECRET"])
+def get_s3_resource():
+    return boto3.resource('s3',
+        region_name = app.config["S3_REGION"],
+        aws_access_key_id = app.config["S3_KEY"],
+        aws_secret_access_key = app.config["S3_SECRET"])
+    
+BUCKET = "homework1-nickmaltbie"
 
 mysql = MySQL(app)
+
+@app.route("/upload", methods=['POST'])
+def upload():
+    if 'username' not in session:
+        return redirect(url_for('index'))
+    if request.files['myfile'].filename == "":
+        return redirect(url_for('account'))
+
+    data = request.files['myfile'].read()
+    words = data.split()
+    request.files['myfile'].seek(0)
+    
+    s3 = get_s3_resource()
+    cur = mysql.connection.cursor()
+    user_manager.update_or_add(session['username'], request.files['myfile'].filename, len(words), cur)
+    mysql.connection.commit()
+    cur.close()
+    
+    s3.Bucket(BUCKET).put_object(Key=session['username'], Body=request.files['myfile'])
+    return redirect(url_for('account'))
+
+@app.route("/download", methods=['GET'])
+def download():
+    if 'username' not in session:
+        return redirect(url_for('index'))
+    cur = mysql.connection.cursor()
+    fileName, fileWords = user_manager.get_user_file_details(session['username'], cur)
+    cur.close()
+    print("Found file name of: ", fileName)
+    if fileName == None or fileName == "":
+        return Response(status = 204)
+
+    s3 = get_s3_client()
+
+    f = s3.get_object(Bucket=BUCKET, Key=session['username'])
+
+    return Response(
+        f['Body'].read(),
+        mimetype='text/plain/',
+        headers={"Content-Disposition": "attachment;filename=" + fileName}
+    )
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -61,13 +117,19 @@ def account():
 
     cur = mysql.connection.cursor()
     details = user_manager.get_user_info(session['username'], cur)
+    fileName, fileWords = user_manager.get_user_file_details(session['username'], cur)
     cur.close()
     return render_template(
         'account.html',
         username=session['username'],
         email=details['email'] if 'email' in details else 'ERROR: EMAIL NOT FOUND',
         firstName=details['firstName'] if 'firstName' in details else 'ERROR: FIRST NAME NOT FOUND',
-        lastName=details['lastName'] if 'lastName' in details else 'ERROR: LAST NAME NOT FOUND')
+        lastName=details['lastName'] if 'lastName' in details else 'ERROR: LAST NAME NOT FOUND',
+        myfile=fileName if fileName != None else 'No file uploaded yet',
+        fileWords=str(fileWords) if fileWords != None else 'N/A'
+
+    )
+        
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():

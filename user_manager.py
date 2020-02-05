@@ -4,6 +4,31 @@ email_regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
 valid_name_regex = "[A-Za-z0-9]+"
 valid_username_regex = "[A-Za-z0-9\s@._-]+"
 
+def user_has_file(username, cur):
+    cur.execute("SELECT userId, fileName, fileWords FROM Files where userId=%s", [username])
+    return cur.rowcount > 0
+
+def update_or_add(username, fileName, wordCount, cur):
+    if user_has_file(username, cur):
+        update_user_file(username, fileName, wordCount, cur)
+    else:
+        add_user_file(username, fileName, wordCount, cur)
+
+def add_user_file(username, fileName, wordCount, cur):
+    cur.execute("INSERT INTO Files (userId, fileName, fileWords) VALUES (%s, %s, %s)", 
+        [username, fileName, wordCount])
+
+def update_user_file(username, fileName, wordCount, cur):
+    cur.execute("UPDATE Files SET fileName=%s, fileWords=%s WHERE userId=%s", [fileName, wordCount, username])
+
+def get_user_file_details(username, cur):
+    if not user_has_file(username, cur):
+        return None, None
+    cur.execute("SELECT userId, fileName, fileWords FROM Files where userId=%s", [username])
+    select = ['userId', 'fileName', 'fileWords']
+    row_dict = {key:val for key, val in zip(select, cur.fetchone())}
+    return row_dict['fileName'], row_dict['fileWords']
+
 def is_username_taken(username, cur):
     cur.execute("SELECT username FROM MyUsers WHERE username=%s", [username])
 
