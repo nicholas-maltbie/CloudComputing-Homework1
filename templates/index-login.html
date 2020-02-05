@@ -1,0 +1,7 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<p>Welcome back user: {{ session['username'] }}</p>
+<p>See your account details here: <a href="{{ url_for('account') }}">account</a></p>
+
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block content %}
+
+You are now logged in
+
+<ul class='wrapper'>
+    <li class="form-row">
+        <label for="username">username:</label>
+        <input type="text" name="username" id="username"{% if username %}value="{{ username }}"{% endif %} readonly/>
+    </li>
+    <li class="form-row">
+        <label for="email">email:</label>
+        <input type = "text" name= "email" id="email" {% if email %}value="{{ email }}"{% endif %} readonly/>
+    </li>
+    <li class="form-row">
+        <label for="fname">first name:</label>
+        <input type = "text" name= "fname" {% if firstName %}value="{{ firstName }}"{% endif %} readonly/>
+    </li>
+    <li class="form-row">
+        <label for="lname">last name:</label>
+        <input type = "text" name = "lname" {% if lastName %}value="{{ lastName }}"{% endif %} readonly/>
+    </li>
+    <li class="form-row">
+        <a href="{{ url_for('logout') }}" class="button">logout</a>
+    </li>
+</ul>
+
+{% endblock %}

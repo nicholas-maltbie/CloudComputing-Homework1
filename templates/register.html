@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+{% block content %}
+<form method="POST" action="">
+    <H1>Enter your registration information </H1> <br>
+    
+    <ul class="wrapper">
+        <li class="form-row">
+            <label for="username">username</label>
+            <input type="text" name="username" id="username"{% if username %}value="{{ username }}"{% endif %}/>
+        </li>
+        <li class="form-row">
+            <label for="password">password</label>
+            <input type="password" name="password" id="password" {% if password %}value="{{ password }}"{% endif %}/>
+        </li>
+        <li class="form-row">
+            <label for="password2">confirm password</label>
+            <input type="password" name="password2" id="password2" {% if password2 %}value="{{ password2 }}"{% endif %}/>
+        </li>
+        <li class="form-row">
+            <label for="email">email</label>
+            <input type = "text" name= "email" id="email" {% if email %}value="{{ email }}"{% endif %}/>
+        </li>
+        <li class="form-row">
+            <label for="fname">first name</label>
+            <input type = "text" name= "fname" {% if fname %}value="{{ fname }}"{% endif %}/>
+        </li>
+        <li class="form-row">
+            <label for="lname">last name</label>
+            <input type = "text" name = "lname" {% if lname %}value="{{ lname }}"{% endif %}/>
+        </li>
+        <li class="form-row">
+            <button type="submit">submit</button>
+        </li>
+    </ul>
+</form>
+{% if error %}
+<p class=error> Error: {{ error }} </p>
+{% endif %}
+<p>Already have an account? <a href="{{ url_for('login') }}">Login Here!</a></p>
+{% endblock %}

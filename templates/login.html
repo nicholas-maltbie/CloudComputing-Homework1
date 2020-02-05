@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{% block content %}
+<form method="POST" action="">
+    <H1>Enter your login information</H1>
+	<ul class="wrapper">
+	    <li class="form-row">
+   	        <label for="username">Username</label>
+                <input type = "text" name="username" id="username"{% if username %}value="{{ username }}"{% endif %}/>
+	    </li>
+	    <li class="form-row">
+                <label for="password">Password</label>
+                <input type = "password" name="password" id="password"/>
+	    </li>
+		<li class="form-row">
+	    	<button type="submit">Submit</button>
+            </li>
+	</ul>
+</form>
+{% if error %}
+<p class=error> Error: {{ error }} </p>
+{% endif %}
+
+<p>First time here? <a href="{{ url_for('register') }}">Register here</a></p>
+{% endblock %}

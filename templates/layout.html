@@ -1,0 +1,34 @@
+<!doctype html>
+
+{% if 'username' in session %}
+{% set navigation_bar = [
+    ('/', 'index', 'Home'),
+    ('/account', 'account', 'Account'),
+    ('/logout', 'logout', 'Logout')
+] -%}
+{% else %}
+{% set navigation_bar = [
+    ('/', 'index', 'Home'),
+    ('/login', 'login', 'Login'),
+    ('/register', 'register', 'Register')
+] -%}
+{% endif %}
+
+{% set active_page = request.endpoint -%}
+
+<html>
+    <head>
+        <title>Homework 1 assignment</title>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/style.css') }}"/>
+    </head>
+    <body>
+        <div class="topnav">
+            {% for href, id, caption in navigation_bar %}
+            <a {% if id == active_page %}class="active"{% endif %} href="{{ href|e }}">{{ caption|e }}</a>
+            {% endfor %}
+        </div>
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
+    </body>
+</html>
